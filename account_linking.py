@@ -1,8 +1,8 @@
 from json import dump, load
 
 
-def LinkAccounts(discordacc, anilistacc):
-    filename = 'txtLinkedAccounts.txt'
+def link_accounts(discordacc, anilistacc):
+    filename = 'data_linked_acounts.txt'
     linkedaccounts = load(open(filename))
     if discordacc in linkedaccounts.keys():
         return f'Your account has already been linked to {linkedaccounts(discordacc)}'

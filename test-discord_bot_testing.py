@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
-from pyAccountLinking import *
+from account_linking import *
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')

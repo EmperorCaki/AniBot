@@ -3,8 +3,7 @@ import random
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-
-from animu_functions import *
+from functions import *
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')

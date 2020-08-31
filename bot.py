@@ -4,7 +4,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import re
 from uwuify import uwu_text
-from uwucipher import *
+from functions import *
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -14,7 +14,7 @@ bot = commands.Bot(command_prefix=f'{PREFIX} ')
 
 @bot.event
 async def on_ready():
-    print(f'{bot.user.name}(Bot) has connected to Discord!')
+    print(f'{bot.user.name} (bot) has connected to Discord!')
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(f'{PREFIX} help'))
 
 

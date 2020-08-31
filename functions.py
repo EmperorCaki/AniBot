@@ -2,40 +2,40 @@ from json import dump, load, loads
 import requests
 
 
-def uwu_encode(plaintext):
-    encryption, ordtext, bintext = '', [], []
-    for i in plaintext:
-        ordtext.append(ord(i))
-    for i in ordtext:
-        bintext.append(bin(i))
-    for i in bintext:
-        for i in i[2:]:
-            # print(i)
-            if i == '0':
-                encryption += 'owo '
-            if i == '1':
-                encryption += 'uwu '
-        encryption += 'umu '
-    return (encryption)
+def uwu_encode(plainText):
+    encryptedText, ordText, binText = '', [], []
+    for char in plainText:
+        ordText.append(ord(char))
+    for char in ordText:
+        binText.append(bin(char)[2:])
+    for char in binText:
+        for n in char:
+            if n == '0':
+                encryptedText += 'owo '
+            if n == '1':
+                encryptedText += 'uwu '
+        encryptedText += 'umu '
+    return encryptedText.strip()
 
 
-def uwu_decode(encryptedtext):
-    decrypted, ordtext, bintext = '', [], []
-    for i in encryptedtext.split('umu'):
-        x = ''
-        if i == '':
+def uwu_decode(encryptedText):
+    decryptedText, ordText, binText = '', [], []
+    for binValue in encryptedText.split('umu'):
+        binNumber = ''
+        if binValue == '':
             break
-        for i in i.split():
-            if i == 'owo':
-                x += '0'
-            if i == 'uwu':
-                x += '1'
-        bintext.append(x)
-    for i in bintext:
-        ordtext.append(int(f'0b{i}', 0))
-    for i in ordtext:
-        decrypted += chr(i)
-    return (decrypted)
+        for binNumber in binNumber.split():
+            if binNumber == 'owo':
+                binNumber += '0'
+            if binNumber == 'uwu':
+                binNumber += '1'
+        binText.append(binNumber)
+    for binNumber in binText:
+        ordText.append(int(f'0b{binNumber}', 0))
+    for ordNumber in ordText:
+        decryptedText += chr(ordNumber)
+    return decryptedText
+
 
 def link_accounts(discordAccountID, anilistAccount):
     fileName = 'data_linked_acounts.txt'

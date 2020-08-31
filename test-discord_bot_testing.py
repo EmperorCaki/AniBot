@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
-from account_linking import *
+from animu_functions import *
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')

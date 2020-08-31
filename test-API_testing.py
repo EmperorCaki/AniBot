@@ -23,6 +23,7 @@ url = 'https://graphql.anilist.co'
 # Make the HTTP Api request
 response = requests.post(url, json={'query': query, 'variables': variables})
 data = response.text
-print(data)
+print(response)
+print(data["Media"])
 print(data)
 print("\n\n\n\n\n")

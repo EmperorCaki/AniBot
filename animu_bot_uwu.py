@@ -2,8 +2,8 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from uwuify import uwu_text
 import re
+from uwuify import uwu_text
 from uwucipher import *
 
 load_dotenv()

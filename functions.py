@@ -49,6 +49,6 @@ def link_accounts(discordAccountID, anilistAccount):
 
 
 def make_post_request_to_anilist_API(query, variables):
-    # Make the HTTP Api request
+    # Make the HTTPS Api request
     response = requests.post('https://graphql.anilist.co', json={'query': query, 'variables': variables})
-    return loads(response.text)
+    return loads(response.text), response.status_code

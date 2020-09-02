@@ -1,4 +1,7 @@
+matplotlib
+aiohttp
 discord
 python-dotenv
 uwuify
 requests
+Red-DiscordBot

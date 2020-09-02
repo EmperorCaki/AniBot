@@ -20,32 +20,38 @@ def uwu_encode(plainText):
 
 def uwu_decode(encryptedText):
     decryptedText, ordText, binText = '', [], []
-    for binValue in encryptedText.split('umu'):
+    for enchryptedChar in encryptedText.split('umu'):
         binNumber = ''
-        if binValue == '':
+        if enchryptedChar == '':
             break
-        for binNumber in binNumber.split():
-            if binNumber == 'owo':
+        for n in enchryptedChar.split():
+            if n == 'owo':
                 binNumber += '0'
-            if binNumber == 'uwu':
+            if n == 'uwu':
                 binNumber += '1'
-        binText.append(binNumber)
+        binText.append(f'0b{binNumber}')
     for binNumber in binText:
-        ordText.append(int(f'0b{binNumber}', 0))
+        ordText.append(int(binNumber, 0))
     for ordNumber in ordText:
         decryptedText += chr(ordNumber)
     return decryptedText
 
 
 def link_accounts(discordAccountID, anilistAccount):
-    fileName = 'data_linked_acounts.txt'
+    fileName = 'data/linked_accounts.json'
     linkedAccounts = load(open(fileName))
+    print(linkedAccounts)
     if discordAccountID in linkedAccounts.keys():
-        return f'Your account has already been linked to {linkedAccounts(discordAccountID)}'
+        if linkedAccounts[discordAccountID] == anilistAccount:
+            return f'Your account is already linked to {linkedAccounts[discordAccountID]}.'
+        else:
+            linkedAccounts[discordAccountID] = anilistAccount
+            dump(linkedAccounts, open(fileName, 'w'))
+            return f'Your account has successfully been updated and is now linked to {linkedAccounts[discordAccountID]}'
     else:
         linkedAccounts[discordAccountID] = anilistAccount
         dump(linkedAccounts, open(fileName, 'w'))
-        return 'Your account has successfully been linked.'
+        return f'Your account has successfully been linked to {linkedAccounts[discordAccountID]}'
 
 
 def make_post_request_to_anilist_API(query, variables):

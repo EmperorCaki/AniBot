@@ -2,46 +2,51 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-import re
-from uwuify import uwu_text
-from functions import *
+from json import dump, load
+
+
+def get_prefix(message):
+    config = load(open('data/config.json'))
+    return config[str(message.guild.id)]['prefix']
+
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 PREFIX = os.getenv('PREFIX')
-bot = commands.Bot(command_prefix=f'{PREFIX} ')
+client = commands.Bot(command_prefix=get_prefix)
+
+for file in os.listdir('./cogs'):
+    if file.endswith('.py'):
+        print(f'Loading {file}')
+        client.load_extension(f'cogs.{file[:-3]}')
 
 
-@bot.event
+@client.event
 async def on_ready():
-    print(f'{bot.user.name} (bot) has connected to Discord!')
-    await bot.change_presence(status=discord.Status.online, activity=discord.Game(f'{PREFIX} help'))
+    print(f'{client.user.name} ({os.path.basename(__file__)}) has connected to Discord!')
+    await client.change_presence(status=discord.Status.online, activity=discord.Game(f'{PREFIX} help'))
 
 
-@bot.command(name='encode', help='Encodes a message into "uwu encryption".', aliases=['encrypt'])
-async def encode(ctx):
-    channel = ctx.message.channel
-    content = ctx.message.content.replace("uwu encode", "").replace("uwu encrypt", "").strip()
-    reply = re.findall('.{2000}', uwu_encode(content))
-    for i in reply:
-        await channel.send(i)
+@client.event
+async def on_guild_join(guild):
+    settings = load(open('data/config.json'))
+    print(settings)
+    if settings[str(guild.id)]:
+        settings[str(guild.id)]['prefix'] = PREFIX
+        dump(settings, open('data/config.json', 'w'), indent=4)
 
 
-@bot.command(nam='decode', help='Decodes a message from "uwu encryption".', aliases=['decrypt'])
-async def decode(ctx):
-    channel = ctx.message.channel
-    content = ctx.message.content.replace("uwu decode", "").replace("uwu decrypt", "").strip()
-    reply = re.findall('.{2000}', uwu_decode(content))
-    for i in reply:
-        await channel.send(i)
+@client.command()
+async def load(ctx, extension):
+    client.load_extension(f'cogs.{extension}')
+    await ctx.send(f'{extension} loaded.')
 
 
-@bot.command(name='uwuify', help='Uwufies a message.')
-async def uwuify(ctx):
-    channel = ctx.message.channel
-    content = ctx.message.content.replace("uwu uwuify", "").strip()
-    await channel.send(uwu_text(content))
+@client.command()
+async def unload(ctx, extension):
+    client.unload_extension(f'cogs.{extension}')
+    await ctx.send(f'{extension} unloaded.')
 
 
-print('Connecting...')
-bot.run(TOKEN)
+print('\nConnecting...')
+client.run(TOKEN)

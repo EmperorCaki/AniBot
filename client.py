@@ -11,26 +11,17 @@ client = discord.Client()
 
 @client.event
 async def on_ready():
-    guild = discord.utils.get(client.guilds, name=GUILD)
-
-    print(
-        f'{client.user} is connected to the following server:\n'
-        f'{guild.name}(id: {guild.id})'
-    )
-
-    members = '\n - '.join([member.name for member in guild.members])
-    print(f'Server Members:\n - {members}')
-
+    print(f'{client.user.name} ({os.path.basename(__file__)}) has connected to Discord!')
     await client.change_presence(status=discord.Status.online, activity=discord.Game("Anime Binging"))
 
 
 @client.event
-async def on_message(message):
-    if message.author == client.user:
+async def on_message(ctx):
+    if ctx.author == client.user:
         return
 
-    if message.content.startswith('hello'):
-        await message.channel.send('Hello!')
+    if ctx.content.startswith('hello'):
+        await ctx.channel.send('Hello!')
 
 
 @client.event
@@ -48,5 +39,5 @@ async def on_member_join(member):
         f'Hi {member.name}, welcome to my Discord server!'
     )
 
-print('Starting...')
+print('Connecting...')
 client.run(TOKEN)

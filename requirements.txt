@@ -1,7 +1,5 @@
-matplotlib
 aiohttp
-discord
+discord.py >= 1.4.1
 python-dotenv
 uwuify
 requests
-Red-DiscordBot

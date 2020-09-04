@@ -1,36 +1,47 @@
 import discord
 from discord.ext import commands
 import re
-from uwuify import uwu_text
-from functions import *
+import uwuify
 from random import choice
 from pprint import pprint
-import matplotlib
+from random import randint
+import functions
 
 
 class Fun(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(name='encode', help='Encodes a message into "uwu encryption".', aliases=['encrypt'])
+    # COMMANDS ---------------------------------------------------------------------------------------------------------
+
+    @commands.command(name='Ping', help='Pong!', aliases=['ping'])
+    async def ping(self, ctx):
+        embed = discord.Embed(
+            title='Pong!',
+            description=f':ping_pong: {int(round(self.client.latency, 3) * 1000)}ms',
+            colour=randint(0, 0xffffff)
+        )
+        await ctx.send(embed=embed)
+
+    @commands.command(name='Encode', help='Encodes a message into "uwu encryption".',
+                      aliases=['encode', 'Encrypt', 'encrypt'])
     async def encode(self, ctx, *, message):
-        replies = re.findall('.{0,2000}', uwu_encode(message))
+        replies = re.findall('.{0,2000}', functions.uwu_encode(message))
         for reply in replies:
             if reply:
                 await ctx.send(reply)
 
-    @commands.command(nam='Decode', help='Decodes a message from "uwu encryption".', aliases=['decrypt'])
+    @commands.command(name='Decode', help='Decodes a message from "uwu encryption".',
+                      aliases=['decode', 'Decrypt', 'decrypt'])
     async def decode(self, ctx, *, message):
-        await ctx.send(uwu_decode(message))
+        await ctx.send(functions.uwu_decode(message))
 
-    @commands.command(name='uwuify', help='Uwufies a message.')
+    @commands.command(name='Uwuify', help='Uwufies a message.', aliases=['uwuify'])
     async def uwuify(self, ctx, *, message):
-        await ctx.send(uwu_text(message))
+        await ctx.send(hj.uwu(message))
 
-    @commands.command(name='8Ball', help='Ask a question and you shall receive an answer.', aliases=[
-        '8ball', 'eightball', 'Eightball', 'EightBall'
-    ])
-    async def _8ball(self, ctx, *, question):
+    @commands.command(name='8Ball', help='Ask a question and you shall receive an answer.', aliases=['8ball'])
+    async def eightball(self, ctx, *, question):
         answer = choice(['As I see it, yes.',
                          'Ask again later.',
                          'Better not tell you now.',
@@ -51,22 +62,46 @@ class Fun(commands.Cog):
                          'Yes.',
                          'Yes – definitely.',
                          'You may rely on it.'])
-        embed = discord.Embed(title=question, description=answer)
-        embed.set_author(name='ctx',
-                         icon_url='https://media.discordapp.net/attachments/695297871976726559/750540404025196624'
-                                  '/Lelouch.jpg?width=702&height=702')
-        embed.set_thumbnail(url='https://www.jing.fm/clipimg/full/262-2622010_8ball-pool-ball-clip-art.png')
+        embed = discord.Embed(title=question, description=answer, colour=randint(0, 0xffffff))
+        embed.set_author(name=ctx.bot.user.name, icon_url=functions.get_image_url('BotPFP'))
+        embed.set_thumbnail(url=functions.get_image_url('8Ball'))
         pprint(ctx)
         await ctx.send(embed=embed)
 
-    @commands.command(name='Ping', help='Pong!', aliases=['ping'])
-    async def ping(self, ctx):
-        embed = discord.Embed(
-            title='Pong!',
-            description=f':ping_pong: {int(round(self.client.latency, 3)*1000)}ms',
-            colour=choice(list(matplotlib.colors.cnames.values()))
-        )
-        await ctx.send(embed=embed)
+    @commands.command(name='Roll', help='Simulates rolling dice. <NumOfDice>d<DiceType> [eg, 2d6 4d8 1d20]',
+                      aliases=['roll'])
+    async def roll(self, ctx, *, rolls: str):
+        diceRolls = {}
+        totalValue = int()
+        rolls = rolls.split(' ')
+        rolls.sort()
+        for roll in range(len(rolls)):
+            numOfRolls = int(rolls[roll].lower().split('d')[0])
+            diceSize = int(rolls[roll].lower().split('d')[1])
+            diceRolls[rolls[roll]+'-'*roll] = []
+            for _ in range(numOfRolls):
+                rollResult = randint(1, diceSize)
+                diceRolls[rolls[roll]+'-'*roll].append(str(rollResult))
+                totalValue += rollResult
+        embed = discord.Embed(title='Dice Rolls', colour=randint(0, 0xffffff))
+        embed.set_thumbnail(url=functions.get_image_url('Dice'))
+        embed.add_field(name='Total', value=str(totalValue), inline=False)
+        for dice, rolls in diceRolls.items():
+            embed.add_field(name=dice.replace('-', ''), value=', '.join(rolls))
+        await ctx.channel.send(', '.join(diceRolls), embed=embed)
+
+    # COMMAND ERRORS ---------------------------------------------------------------------------------------------------
+
+    @eightball.error
+    async def error_eightball(self, ctx, error):
+        await ctx.send('Make sure to ask a question!')
+
+    @roll.error
+    async def error_roll(self, ctx, error):
+        await ctx.send('Make sure to enter rolls in the format of <NumOfDice>d<DiceType>\n eg `2d6`')
+        embed = discord.Embed(title='Dice Rolls', colour=randint(0, 0xffffff))
+        embed.set_author(name='Fun Commands')
+        embed.set_thumbnail(url=functions.get_image_url('Dice'))
 
 
 def setup(client):

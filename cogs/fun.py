@@ -38,7 +38,7 @@ class Fun(commands.Cog):
 
     @commands.command(name='Uwuify', help='Uwufies a message.', aliases=['uwuify'])
     async def uwuify(self, ctx, *, message):
-        await ctx.send(hj.uwu(message))
+        await ctx.send(uwuify.uwu(message))
 
     @commands.command(name='8Ball', help='Ask a question and you shall receive an answer.', aliases=['8ball'])
     async def eightball(self, ctx, *, question):

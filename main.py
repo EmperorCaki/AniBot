@@ -24,7 +24,7 @@ for file in os.listdir('./cogs'):
         Client.load_extension(f'cogs.{file[:-3]}')
 
 
-@tasks.loop(seconds=1)
+@tasks.loop(seconds=120)
 async def change_status():
     statuses = json.load(open('data/bot_config.json'))['Statuses']
     await Client.change_presence(activity=discord.Game(choice(statuses)))

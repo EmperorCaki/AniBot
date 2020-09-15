@@ -1,3 +1,4 @@
+dpymenus
 aiohttp
 discord.py >= 1.4.1
 python-dotenv

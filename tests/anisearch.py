@@ -4,7 +4,6 @@ import json
 import re
 import aiohttp
 import discord
-from redbot.core.utils.menus import menu, commands, DEFAULT_CONTROLS
 
 SEARCH_ANIME_MANGA_QUERY = """
 query ($id: Int, $page: Int, $search: String, $type: MediaType) {
@@ -202,6 +201,7 @@ class AniSearch(BaseCog):
         variables = {"search": entered_title, "page": 1, "type": cmd}
 
         data = (await self._request(SEARCH_ANIME_MANGA_QUERY, variables))["data"]["Page"]["media"]
+        print(data)
 
         if data is not None and len(data) > 0:
 

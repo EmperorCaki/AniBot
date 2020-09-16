@@ -1,7 +1,10 @@
 import datetime
 import re
 from json import dump, load, loads
+from pprint import pprint
 from random import randint
+
+import discord
 import dpymenus
 import requests
 
@@ -209,7 +212,6 @@ def get_linked_account(discordAccountID: str):
     return linkedAccounts.get(discordAccountID, None)
 
 
-
 def is_bot_admin(userID: int):
     if userID in load(open('data/bot_config.json'))['AniAdmins']:
         return True
@@ -224,13 +226,32 @@ def get_image_url(image: str):
 # Embed Creating -------------------------------------------------------------------------------------------------------
 
 
-# Anilist Searching ----------------------------------------------------------------------------------------------------
+def create_embed_main(title: str):
+    embed = discord.Embed(colour=0x000000)
+    embed.title = title
+    embed.set_author(name='Bot Management', icon_url=get_image_url('BotPFP'))
+    embed.set_thumbnail(url=get_image_url('Cog'))
+    return embed
 
 
-def _create_page(title):
-    page = dpymenus.Page(title=title)
-    page.set_author(name='Anisearch', icon_url=get_image_url('BotPFP'))
+def create_embed_fun(title: str, thumbnail=None):
+    embed = discord.Embed(title=title, colour=randint(0, 0xffffff))
+    embed.set_author(name='Fun & Games', icon_url=get_image_url('BotPFP'))
+    if thumbnail:
+        embed.set_thumbnail(url=get_image_url(thumbnail))
+    return embed
+
+
+def _create_page(title: str, url: str, thumbnail: str, description: str):
+    page = dpymenus.Page(title=title, colour=randint(0, 0xffffff), url=url)
+    page.set_author(name='AniSearch', icon_url=get_image_url('BotPFP'))
+    page.set_thumbnail(url=thumbnail)
+    page.description = _description_parser(description)
     return page
+
+
+# Anilist Searching ----------------------------------------------------------------------------------------------------
+# Local Functions for Searching
 
 
 def _make_post_request_to_anilist_API(query: str, variables: dict):
@@ -239,7 +260,7 @@ def _make_post_request_to_anilist_API(query: str, variables: dict):
     return loads(response.text), response.status_code
 
 
-def _format_name(first_name, last_name):  # Combines first_name and last_name and/or shows either of the two
+def _format_name(first_name: str, last_name: str):  # Combines first_name and last_name and/or shows either of the two
     if first_name and last_name:
         return first_name + ' ' + last_name
     elif first_name:
@@ -250,7 +271,7 @@ def _format_name(first_name, last_name):  # Combines first_name and last_name an
         return 'No name'
 
 
-def _clean_html(description):  # Removes html tags
+def _clean_html(description: str):  # Removes html tags
     if not description:
         return ''
     clean = re.compile('<.*?>')
@@ -258,7 +279,7 @@ def _clean_html(description):  # Removes html tags
     return cleanText
 
 
-def _clean_spoilers(description):  # Removes spoilers using the html tag given by AniList
+def _clean_spoilers(description: str):  # Removes spoilers using the html tag given by AniList
     if not description:
         return ''
     clean = re.compile('/<span[^>]*>.*</span>/g')
@@ -266,7 +287,7 @@ def _clean_spoilers(description):  # Removes spoilers using the html tag given b
     return cleanText
 
 
-def _description_parser(description):  # Limits text to 400characters and 5 lines and adds '...' at the end
+def _description_parser(description: str):  # Limits text to 400characters and 5 lines and adds '...' at the end
     description = _clean_spoilers(description)
     description = _clean_html(description)
     description = '\n'.join(description.split('\n')[:5])
@@ -276,14 +297,17 @@ def _description_parser(description):  # Limits text to 400characters and 5 line
         return description
 
 
-def _list_maximum(items):  # Limits to 5 strings than adds '+X more'
+def _list_maximum(items: list):  # Limits to 5 strings than adds '+X more'
     if len(items) > 5:
         return items[:5] + ['+ ' + str(len(items) - 5) + ' more']
     else:
         return items
 
 
-def search_anime_manga(ctx, media, title):
+# Actual Search Functions --------------------------------------------------------------
+
+
+def search_anime_manga(ctx, media: str, title: str):
     variables = {'search': title, 'page': 1, 'type': media}
 
     aniMangas, status = _make_post_request_to_anilist_API(_QueryAniManga, variables)
@@ -317,14 +341,11 @@ def search_anime_manga(ctx, media, title):
                 if i + 1 == len(aniManga['externalLinks']):
                     external_links = external_links.strip(', ')
 
-            page = _create_page(title)
-            page.url = link
-            page.colour = randint(0, 0xffffff)
-            page.set_thumbnail(url=aniManga['coverImage']['medium'])
+            page = _create_page(title, link, aniManga['coverImage']['medium'], _description_parser(description))
+
             if aniManga['bannerImage']:
                 page.set_image(url=aniManga['bannerImage'])
 
-            page.description = _description_parser(description)
             page.add_field(name='Popularity', value=aniManga.get('popularity', 'N/A'))
             page.add_field(name='Score', value=aniManga.get('averageScore', 'N/A'))
             if media == 'ANIME':
@@ -338,15 +359,21 @@ def search_anime_manga(ctx, media, title):
                 page.add_field(name='Status', value=aniManga['status'].title().replace('_', ' '))
 
             if aniManga.get('startDate')['year']:
-                page.add_field(name='Start Date', value=datetime.date(day=aniManga['startDate']['day'],
-                                                                      month=aniManga['startDate']['month'],
-                                                                      year=aniManga['startDate']['year']
-                                                                      ).strftime('%A %d %B %Y'))
+                if aniManga.get('startDate')['day']:
+                    page.add_field(name='Start Date', value=datetime.date(day=aniManga['startDate']['day'],
+                                                                          month=aniManga['startDate']['month'],
+                                                                          year=aniManga['startDate']['year']
+                                                                          ).strftime('%A %d %B %Y'))
+                else:
+                    page.add_field(name='Start Date', value=aniManga['startDate']['year'])
             if aniManga.get('endDate')['year']:
-                page.add_field(name='End Date', value=datetime.date(day=aniManga['endDate']['day'],
-                                                                    month=aniManga['endDate']['month'],
-                                                                    year=aniManga['endDate']['year']
-                                                                    ).strftime('%A %d %B %Y'))
+                if aniManga.get('endDate')['day']:
+                    page.add_field(name='End Date', value=datetime.date(day=aniManga['endDate']['day'],
+                                                                        month=aniManga['endDate']['month'],
+                                                                        year=aniManga['endDate']['year']
+                                                                        ).strftime('%A %d %B %Y'))
+                else:
+                    page.add_field(name='End Date', value=aniManga['endDate']['year'])
 
             if len(aniManga['genres']) > 0:
                 page.add_field(name='Genres', inline=False,
@@ -387,7 +414,7 @@ def search_anime_manga(ctx, media, title):
         return None
 
 
-def search_character(ctx, character):
+def search_character(ctx, character: str):
     variables = {'search': character, 'page': 1}
 
     characters, status = _make_post_request_to_anilist_API(_QueryCharacter, variables)
@@ -407,17 +434,18 @@ def search_character(ctx, character):
                                for anime in character["media"]["nodes"] if anime["type"] == "ANIME"]
             character_manga = [f'[{manga["title"]["userPreferred"]}]({"https://anilist.co/manga/" + str(manga["id"])})'
                                for manga in character["media"]["nodes"] if manga["type"] == "MANGA"]
-            page = _create_page(_format_name(character['name']['first'], character['name']['last']))
-            page.url = link
-            page.colour = randint(0, 0xffffff)
-            page.description = _description_parser(character['description'])
-            page.set_thumbnail(url=character['image']['large'])
+
+            page = _create_page(_format_name(character['name']['first'], character['name']['last']),
+                                link, character['image']['large'], _description_parser(character['description']))
+
             if len(character_anime) > 0:
                 page.add_field(name='Anime', value='\n'.join(_list_maximum(character_anime)))
             if len(character_manga) > 0:
                 page.add_field(name='Manga', value='\n'.join(_list_maximum(character_manga)))
+
             page.set_footer(text=f'Character {resultNumber}/{totalNumberOfResults}')
             resultNumber += 1
+
             pages.append(page)
 
         menu = dpymenus.PaginatedMenu(ctx)
@@ -436,7 +464,7 @@ def search_character(ctx, character):
         return None
 
 
-def search_user(ctx, user):
+def search_user(ctx, user: str):
     variables = {'search': user, 'page': 1}
 
     users, status = _make_post_request_to_anilist_API(_QueryUser, variables)
@@ -455,12 +483,8 @@ def search_user(ctx, user):
             title = f'[{user["name"]}]({link})'
             title = user['name']
 
-            page = _create_page(title)
-            page.url = link
-            page.colour = randint(0, 0xffffff)
-            page.description = _description_parser(user['about'])
+            page = _create_page(title, link, user['avatar']['large'], _description_parser(user['about']))
 
-            page.set_thumbnail(url=user['avatar']['large'])
             # if user['bannerImage']:
             #     page.set_image(url=user['bannerImage'])
 

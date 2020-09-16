@@ -4,7 +4,7 @@ from dpymenus.exceptions import PagesError
 import functions
 
 
-class Anilist(commands.Cog):
+class Anisearch(commands.Cog):
     def __init__(self, client):
         self.client = client
 
@@ -18,8 +18,8 @@ class Anilist(commands.Cog):
             else:
                 await ctx.send('No anime was found or there was an error in the process')
 
-        except TypeError:
-            await ctx.send('No anime was found or there was an error in the process')
+        # except TypeError:
+        #     await ctx.send('No anime was found or there was an error in the process')
 
         except PagesError:
             await ctx.send(embed=menu.page)
@@ -80,6 +80,5 @@ class Anilist(commands.Cog):
         functions.link_accounts(str(ctx.author.id), user)
 
 
-
 def setup(client):
-    client.add_cog(Anilist(client))
+    client.add_cog(Anisearch(client))

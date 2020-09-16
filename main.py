@@ -51,12 +51,9 @@ async def on_guild_remove(guild):
     json.dump(config, open('data/server_config.json', 'w'), indent=4)
 
 
-@Client.command(name='Load', help='Loads a specified extension.', aliases=['load'])
+@Client.command(name='Load', help='Loads a specified extension/s.', aliases=['load'])
 async def load_cog(ctx, *, extensions):
-    embed = discord.Embed(colour=0x000000)
-    embed.title = 'Load Extension'
-    embed.set_author(name='Bot Management', icon_url=functions.get_image_url('BotPFP'))
-    embed.set_thumbnail(url=functions.get_image_url('Cog'))
+    embed = functions.create_embed_main('Load Extension/s')
     if functions.is_bot_admin(ctx.message.author.id):
         for extension in extensions.split():
             message = 'Has been loaded.'
@@ -71,12 +68,9 @@ async def load_cog(ctx, *, extensions):
     await ctx.send(embed=embed)
 
 
-@Client.command(name='Unload', help='Unloads a specified extension.', aliases=['unload'])
+@Client.command(name='Unload', help='Unloads a specified extension/s.', aliases=['unload'])
 async def unload_cog(ctx, *, extensions):
-    embed = discord.Embed(colour=0x000000)
-    embed.title = 'Unload Extension'
-    embed.set_author(name='Bot Management', icon_url=functions.get_image_url('BotPFP'))
-    embed.set_thumbnail(url=functions.get_image_url('Cog'))
+    embed = functions.create_embed_main('Unload Extension/s')
     if functions.is_bot_admin(ctx.message.author.id):
         for extension in extensions.split():
             message = 'Has been unloaded.'
@@ -91,12 +85,9 @@ async def unload_cog(ctx, *, extensions):
     await ctx.send(embed=embed)
 
 
-@Client.command(name='Reload', help='Reloads a specified extension.', aliases=['reload'])
+@Client.command(name='Reload', help='Reloads a specified extension/s.', aliases=['reload'])
 async def reload_cog(ctx, *, extensions):
-    embed = discord.Embed(colour=0x000000)
-    embed.title = 'Reload Extension'
-    embed.set_author(name='Bot Management', icon_url=functions.get_image_url('BotPFP'))
-    embed.set_thumbnail(url=functions.get_image_url('Cog'))
+    embed = functions.create_embed_main('Reload Extension/s')
     if functions.is_bot_admin(ctx.message.author.id):
         for extension in extensions.split():
             message = 'Has been reloaded.'
@@ -113,10 +104,7 @@ async def reload_cog(ctx, *, extensions):
 
 @Client.command(name='Adminify', help='Promotes the specified user/s to an AniAdmin.', aliases=['adminify'])
 async def adminify(ctx, *, users):
-    embed = discord.Embed(colour=0x000000)
-    embed.title = 'Adminify'
-    embed.set_author(name='Bot Management', icon_url=functions.get_image_url('BotPFP'))
-    embed.set_thumbnail(url=functions.get_image_url('Cog'))
+    embed = functions.create_embed_main('Adminify')
     if functions.is_bot_admin(ctx.message.author.id):
         botConfig = json.load(open('data/bot_config.json'))
         users = users.split(' ')
@@ -140,10 +128,7 @@ async def adminify(ctx, *, users):
 
 @Client.command(name='Diminify', help='Demotes the specified AniAdmin/s to just a user.', aliases=['diminify'])
 async def diminify(ctx, *, users):
-    embed = discord.Embed(colour=0x000000)
-    embed.title = 'Diminify'
-    embed.set_author(name='Bot Management', icon_url=functions.get_image_url('BotPFP'))
-    embed.set_thumbnail(url=functions.get_image_url('Cog'))
+    embed = functions.create_embed_main('Diminify')
     if functions.is_bot_admin(ctx.message.author.id):
         botConfig = json.load(open('data/bot_config.json'))
         users = users.split(' ')
@@ -163,10 +148,7 @@ async def diminify(ctx, *, users):
 @Client.command(name='Saveimage', help='Adds an image url to the stored urls.', aliases=['saveimage'])
 async def save_image_url(ctx, name: str, url: str):
     name = name.title()
-    embed = discord.Embed(colour=0x000000)
-    embed.title = 'Add Image'
-    embed.set_author(name='Bot Management', icon_url=functions.get_image_url('BotPFP'))
-    embed.set_thumbnail(url=functions.get_image_url('Cog'))
+    embed = functions.create_embed_main('Save Image')
     try:
         requests.get(url).status_code == 200
     except:
